@@ -1,0 +1,295 @@
+Experiment – 1
+Aim: An introduction to robot programming.
+Introduction:
+This course delves into the exciting world of robotics, learning how to program robots to
+perform various tasks efficiently and effectively. This laboratory manual serves as a guide for
+understanding the fundamentals of robot programming, exploring key concepts, and gaining
+hands-on experience with programming robots.
+Objective:
+The objective of this laboratory session is to provide a comprehensive understanding of robot
+programming principles &amp; techniques. By the end of this session, students should be able to:
+ Understand the basics of robot programming languages.
+ Familiarize with the common components of a robot programming environment.
+ Develop essential skills in programming robots to perform specific tasks.
+ Gain practical experience through hands-on exercises and projects.
+Prerequisites:
+Before proceeding with this laboratory session, it is assumed that students have a basic
+understanding of:
+ Programming fundamentals, including variables, control structures, and functions.
+ Mathematics, particularly algebra and geometry.
+ Familiarity with basic robotics concepts such as sensors, actuators, and kinematics.
+Equipment and Software:
+For this laboratory session, following equipment and software are needed:
+ Robot platform: This could be a physical robot or a simulator depending on the availability
+and requirements of the laboratory setup.
+ Programming environment: A software environment where you can write, compile, and
+execute robot programs. Common examples include ROS (Robot Operating System),
+MATLAB Robotics Toolbox, or proprietary software provided by the robot manufacturer.
+ Computer with internet access: To download necessary software, access online resources,
+and communicate with instructors or peers if required.
+Laboratory Activities:
+The laboratory session will consist of the following activities:
+ Introduction to Robot Programming Languages: Students will explore different
+programming languages commonly used in robotics, such as Python, C++, and ROS-specific
+languages. Understanding the syntax and features of these languages is essential for effective
+robot programming.
+ Setting up the Programming Environment: Students will learn how to set up the
+programming environment, including installing necessary software, configuring
+communication with the robot platform, and setting up simulation environments if applicable.
+ Basic Robot Control: Students will start with simple exercises to control the robot&#39;s motion,
+including moving forward, backward, turning, and stopping. These exercises will help
+students understand how to send commands to the robot and control its behavior.
+ Sensor Integration: Sensors play a crucial role in robotics by providing feedback about the
+robot&#39;s environment. Students will learn how to integrate sensors such as proximity sensors,
+cameras, and encoders into your robot programs to enable more sophisticated behaviors.
+ Path Planning and Navigation: Students will delve into algorithms for path planning and
+navigation, allowing the robot to autonomously navigate its environment while avoiding
+obstacles. Concepts such as localization, mapping, and obstacle avoidance will be covered.
+ Advanced Topics (Optional): Depending on the time and resources available, students may
+explore advanced topics such as robot manipulation, vision-based control, machine learning
+for robotics, or collaborative robotics.
+Conclusion:
+Robot programming is a fascinating field that combines elements of computer science,
+engineering, and mathematics. Through this laboratory session, students will gain valuable
+hands-on experience and develop the skills necessary to program robots for a wide range of
+applications.
+---------------------------------------------------------------------------------------------------
+Experiment – 2
+
+Aim: Object Detection and Tracking Robot:
+In this example, we&#39;ll use the MobileNet-SSD (Single Shot MultiBox Detector) model, which is
+a popular object detection model that&#39;s capable of detecting multiple objects in an image. First,
+you&#39;ll need to install the necessary libraries. You can do this with pip:
+pip install opencv-python
+pip install imutils
+Code:
+Here&#39;s a simple example of object detection using OpenCV and MobileNet-SSD:
+import cv2
+import imutils
+# Load pre-trained model
+net = cv2.dnn.readNetFromCaffe(&#39;MobileNetSSD_deploy.prototxt.txt&#39;,
+&#39;MobileNetSSD_deploy.caffemodel&#39;)
+# Initialize video stream
+vs = cv2.VideoCapture(0)
+while True:
+# Read the next frame from the video stream
+_, frame = vs.read()
+# Resize the frame to have a maximum width of 400 pixels
+frame = imutils.resize(frame, width=400)
+# Convert the frame to a blob
+blob = cv2.dnn.blobFromImage(frame, 0.007843, (300, 300), 127.5)
+# Pass the blob through the network and obtain the detections
+net.setInput(blob)
+detections = net.forward()
+# Loop over the detections
+for i in np.arange(0, detections.shape[2]):
+# Extract the confidence (i.e., probability) associated with the prediction
+confidence = detections[0, 0, i, 2]
+# Filter out weak detections by ensuring the `confidence` is greater than the minimum
+confidence
+if confidence &gt; 0.2:
+# Extract the index of the class label from the `detections`
+idx = int(detections[0, 0, i, 1])
+# Draw the prediction on the frame
+label = &quot;{}: {:.2f}%&quot;.format(CLASSES[idx], confidence * 100)
+cv2.putText(frame, label, (startX, startY-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+color, 2)
+# Show the output frame
+cv2.imshow(&quot;Frame&quot;, frame)
+key = cv2.waitKey(1) &amp; 0xFF
+# If the `q` key was pressed, break from the loop
+if key == ord(&quot;q&quot;):
+break
+# Clean up
+cv2.destroyAllWindows()
+vs.stop()
+---------------------------------------------------------------------
+Experiment – 3
+Aim: Autonomous Maze Solving Robot:
+The A algorithm is a popular path finding algorithm used in many applications, including games
+and robotics. It works by maintaining a tree of paths originating at the start node and extending
+those paths one edge at a time until its termination criterion is satisfied.
+Code:
+import heapq
+def heuristic(a, b):
+return abs(b[0] - a[0]) + abs(b[1] - a[1])
+def astar(array, start, goal):
+neighbors = [(0,1),(0,-1),(1,0),(-1,0)]
+close_set = set()
+came_from = {}
+gscore = {start:0}
+fscore = {start:heuristic(start, goal)}
+oheap = []
+heapq.heappush(oheap, (fscore[start], start))
+while oheap:
+current = heapq.heappop(oheap)[1]
+if current == goal:
+data = []
+while current in came_from:
+data.append(current)
+current = came_from[current]
+return data
+close_set.add(current)
+for i, j in neighbors:
+neighbor = current[0] + i, current[1] + j
+tentative_g_score = gscore[current] + heuristic(current, neighbor)
+if 0 &lt;= neighbor[0] &lt; array.shape[0]:
+if 0 &lt;= neighbor[1] &lt; array.shape[1]:
+if array[neighbor[0]][neighbor[1]] == 1:
+continue
+else:
+# array bound y walls
+continue
+else:
+# array bound x walls
+continue
+if neighbor in close_set and tentative_g_score &gt;= gscore.get(neighbor, 0):
+continue
+if tentative_g_score &lt; gscore.get(neighbor, 0) or neighbor not in [i[1]for i in oheap]:
+came_from[neighbor] = current
+gscore[neighbor] = tentative_g_score
+fscore[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+heapq.heappush(oheap, (fscore[neighbor], neighbor))
+return False
+# Define the maze - 0 is open, 1 is blocked
+maze = [[0, 0, 0, 0, 1, 0],
+[1, 1, 0, 0, 1, 0],
+[0, 0, 0, 1, 0, 0],
+[0, 1, 1, 0, 0, 1],
+[0, 0, 0, 0, 1, 0]]
+start = (0, 0) # Starting position
+end = (4, 5) # Ending position
+path = astar(maze, start, end)
+print(path)
+-----------------------------------------------------------
+Experiment – 4
+Aim: Reinforcement Learning for Robotic Arm Control:
+Training a robotic arm to perform tasks using reinforcement learning involves complex simulatio
+ns and hardware setups. Here&#39;s a simplified Python code snippet using the OpenAI Gym environme
+nt and the Proximal Policy Optimization (PPO) algorithm to train a robotic arm in a simulated 
+environment:
+import gym
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+from tensorflow_probability import distributions
+# Define the environment
+env = gym.make(&#39;Pendulum-v0&#39;)
+# Define the neural network model
+model = Sequential([
+Dense(64, activation=&#39;relu&#39;, input_shape=(env.observation_space.shape[0],)),
+Dense(64, activation=&#39;relu&#39;),
+Dense(env.action_space.shape[0])
+])
+# Define the optimizer
+optimizer = Adam(learning_rate=0.001)
+# Define the PPO agent
+def ppo_agent(model, optimizer):
+action_space = env.action_space.shape[0]
+def agent(observation):
+observation = np.expand_dims(observation, axis=0)
+action_logits = model(observation)
+action_distribution = distributions.Categorical(logits=action_logits)
+action = action_distribution.sample()
+return action.numpy()[0]
+return agent
+# Train the agent using PPO
+agent = ppo_agent(model, optimizer)
+for episode in range(1000):
+observation = env.reset()
+done = False
+while not done:
+action = agent(observation)
+next_observation, reward, done, _ = env.step(action)
+observation = next_observation
+# Test the trained agent
+observation = env.reset()
+done = False
+while not done:
+action = agent(observation)
+observation, reward, done, _ = env.step(action)
+env.render()
+env.close()
+--------------------------------------------------------------------
+Experiment 5
+Aim: Human-Robot Interaction using Natural Language Processing (NLP):
+Designing a robot that can understand and respond to voice commands involves integrating 
+speech recognition and natural language processing (NLP) techniques. Here&#39;s a simplified 
+Python code snippet using the SpeechRecognition library and the Natural Language Toolkit to 
+process voice commands and control the robot&#39;s actions:
+Code:
+import speech_recognition as sr
+import nltk
+from nltk.tokenize import word_tokenize
+# Initialize the speech recognizer
+recognizer = sr.Recognizer()
+# Function to process voice commands
+def process_voice_command():
+with sr.Microphone() as source:
+print(&quot;Listening...&quot;)
+audio = recognizer.listen(source)
+try:
+command = recognizer.recognize_google(audio)
+print(&quot;You said:&quot;, command)
+return command
+except sr.UnknownValueError:
+print(&quot;Sorry, I could not understand the command.&quot;)
+return &quot;&quot;
+except sr.RequestError:
+print(&quot;Sorry, my speech service is down.&quot;)
+return &quot;&quot;
+# Function to interpret and respond to voice commands
+def interpret_and_respond(command):
+tokens = word_tokenize(command)
+if &#39;move&#39; in tokens:
+direction = tokens[tokens.index(&#39;move&#39;) + 1]
+if direction == &#39;forward&#39;:
+print(&quot;Moving the robot forward.&quot;)
+elif direction == &#39;backward&#39;:
+print(&quot;Moving the robot backward.&quot;)
+else:
+print(&quot;Invalid direction command.&quot;)
+else:
+print(&quot;Command not recognized.&quot;)
+# Main loop to listen for voice commands
+while True:
+command = process_voice_command()
+if command:
+interpret_and_respond(command)
+-------------------------------------------------------
+Experiment 6
+Aim: Robot-Assisted Healthcare and Patient Interaction:
+Designing a robot to assist patients and healthcare professionals involves integrating AI technolo
+giesfor understanding patient needs, providing information, and interacting empathetically. This
+Python code snippet using the ChatterBot library to create a chatbot that interact with patients and 
+healthcare professionals:
+In this code:
+ We use the ChatterBot library to create a chatbot instance named &#39;HealthcareBot&#39;.
+ We train the chatbot on the English language corpus to provide responses to a wide range of 
+queries.
+ The chat_with_bot() function allows users to interact with the chatbot by entering text inputs.
+ The chatbot responds to user inputs based on the training data and the conversational patterns.
+
+Code:
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
+# Create a ChatBot instance
+chatbot = ChatBot(&#39;HealthcareBot&#39;)
+# Create a new trainer for the chatbot
+trainer = ChatterBotCorpusTrainer(chatbot)
+# Train the chatbot on the English language corpus
+trainer.train(&quot;chatterbot.corpus.english&quot;)
+# Function to interact with the chatbot
+def chat_with_bot():
+print(&quot;HealthcareBot: Hello, how can I assist you today?&quot;)
+while True:
+user_input = input(&quot;You: &quot;)
+if user_input.lower() == &#39;exit&#39;:
+print(&quot;HealthcareBot: Goodbye!&quot;)
+break
+response = chatbot.get_response(user_input)
+print(&quot;HealthcareBot:&quot;, response)
+# Start interacting with the chatbot
+chat_with_bot()
